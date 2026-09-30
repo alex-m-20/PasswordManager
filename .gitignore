@@ -1,0 +1,3 @@
+# Once database_setup.py is run, these junk files emerge.
+__pycache__/
+instance/
