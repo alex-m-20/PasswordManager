@@ -6,6 +6,7 @@ from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 
 from models import db, User
+from routes import register_routes
 
 load_dotenv()  # reads .env into the environment (SECRET_KEY, ENCRYPTION_KEY)
 
@@ -26,7 +27,7 @@ def load_user(user_id):
 
 
 
-def create_app() -> Flask:
+def create_app():
     app = Flask(__name__)
 
     # if SECRET_KEY isn't set in the .env file, fall back to this placeholder instead
@@ -41,6 +42,8 @@ def create_app() -> Flask:
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+
+    register_routes(app)
 
     return app
 

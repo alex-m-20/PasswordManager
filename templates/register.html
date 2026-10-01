@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Register - Secure Password Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <span class="site-title">Secure Password Manager</span>
+        <nav>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('logout') }}">Log out</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Log in</a>
+                <a href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="flash-{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <h1>Register</h1>
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <p>
+                {{ form.username.label }}<br>
+                {{ form.username() }}
+                {% for error in form.username.errors %}<span class="error">{{ error }}</span>{% endfor %}
+            </p>
+
+            <p>
+                {{ form.password.label }}<br>
+                {{ form.password() }}
+                {% for error in form.password.errors %}<span class="error">{{ error }}</span>{% endfor %}
+            </p>
+
+            <p>
+                {{ form.confirm_password.label }}<br>
+                {{ form.confirm_password() }}
+                {% for error in form.confirm_password.errors %}<span class="error">{{ error }}</span>{% endfor %}
+            </p>
+
+            {{ form.submit() }}
+        </form>
+        <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+    </main>
+</body>
+</html>
