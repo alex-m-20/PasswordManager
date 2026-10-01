@@ -10,7 +10,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 
 from models import db, User, Credential
 from forms import RegistrationForm, LoginForm, CredentialForm
-from encryption import encrypt_password
+from encryption import encrypt_password, decrypt_password
 
 
 def register_routes(app):
@@ -103,3 +103,19 @@ def register_routes(app):
             flash("Credential saved.", "success")
             return redirect(url_for("dashboard"))
         return render_template("add_credential.html", form=form)
+
+
+    # Shows one saved credential with its password actually decrypted, so the person can see what they saved. it 
+    # only works for credentials that belong to whoever is currently logged in.
+    @app.route("/reveal_credential/<int:credential_id>")
+    @login_required
+    def reveal_credential(credential_id):
+        credential = Credential.query.get_or_404(credential_id)
+
+        if credential.user_id != current_user.id:
+            flash("You don't have permission to view that credential.", "error")
+            return redirect(url_for("dashboard"))
+
+        password = decrypt_password(credential.encrypted_password)
+        return render_template("reveal_credential.html", credential=credential, password=password)
+    
