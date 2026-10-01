@@ -73,11 +73,13 @@ def register_routes(app):
 
 
 
-    # The main page someone sees once they're logged in.
+    # The main page someone sees once they're logged in. Shows all the
+    # credentials they've saved so far.
     @app.route("/dashboard")
     @login_required
     def dashboard():
-        return render_template("dashboard.html")
+        credentials = Credential.query.filter_by(user_id=current_user.id).all()
+        return render_template("dashboard.html", credentials=credentials)
 
 
     # Shows the "add a new credential" form when someone visits this

@@ -31,7 +31,17 @@
         {% endwith %}
 
         <h1>Welcome, {{ current_user.username }}</h1>
-        <p>Your saved credentials will appear here once credential management is built.</p>
+        <p><a href="{{ url_for('add_credential') }}">Add new credentials</a></p>
+
+        {% if credentials %}
+            <ul>
+                {% for credential in credentials %}
+                    <li>{{ credential.site_name }} - {{ credential.site_username }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You haven't saved any credentials yet.</p>
+        {% endif %}
     </main>
 </body>
 </html>
