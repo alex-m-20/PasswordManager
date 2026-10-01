@@ -36,7 +36,14 @@
         {% if credentials %}
             <ul>
                 {% for credential in credentials %}
-                    <li>{{ credential.site_name }} - {{ credential.site_username }}</li>
+                    <li>
+                        {{ credential.site_name }} - {{ credential.site_username }}
+                        <a href="{{ url_for('edit_credential', credential_id=credential.id) }}">Edit</a>
+                        <form method="POST" action="{{ url_for('delete_credential', credential_id=credential.id) }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </li>
                 {% endfor %}
             </ul>
         {% else %}

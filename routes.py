@@ -5,7 +5,7 @@ in and out and seeing the dashboard.
 """
 
 
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 
 from models import db, User, Credential
@@ -73,6 +73,7 @@ def register_routes(app):
 
 
 
+
     # The main page someone sees once they're logged in. Shows all the
     # credentials they've saved so far.
     @app.route("/dashboard")
@@ -80,6 +81,7 @@ def register_routes(app):
     def dashboard():
         credentials = Credential.query.filter_by(user_id=current_user.id).all()
         return render_template("dashboard.html", credentials=credentials)
+
 
 
     # Shows the "add a new credential" form when someone visits this
@@ -105,6 +107,7 @@ def register_routes(app):
         return render_template("add_credential.html", form=form)
 
 
+
     # Shows one saved credential with its password actually decrypted, so the person can see what they saved. it 
     # only works for credentials that belong to whoever is currently logged in.
     @app.route("/reveal_credential/<int:credential_id>")
@@ -118,4 +121,53 @@ def register_routes(app):
 
         password = decrypt_password(credential.encrypted_password)
         return render_template("reveal_credential.html", credential=credential, password=password)
-    
+
+
+
+    # Deletes the saved credentials of the user who is logged in. Only responds to a form submission (a POST request)
+    # to prevent deleting by accident. 
+    @app.route("/delete_credential/<int:credential_id>", methods=["POST"])
+    @login_required
+    def delete_credential(credential_id):
+        credential = Credential.query.get_or_404(credential_id)
+
+        if credential.user_id != current_user.id:
+            flash("You don't have permission to delete that credential.", "error")
+            return redirect(url_for("dashboard"))
+
+        db.session.delete(credential)
+        db.session.commit()
+        flash("Credential deleted.", "success")
+        return redirect(url_for("dashboard"))
+
+
+
+    # Shows a form containing the saved credentials, giving the
+    # user a chance to make amends and update. 
+    @app.route("/edit_credential/<int:credential_id>", methods=["GET", "POST"])
+    @login_required
+    def edit_credential(credential_id):
+        credential = Credential.query.get_or_404(credential_id)
+
+        if credential.user_id != current_user.id:
+            flash("You don't have permission to edit that credential.", "error")
+            return redirect(url_for("dashboard"))
+
+        form = CredentialForm()
+
+        if form.validate_on_submit():
+            credential.site_name = form.site_name.data
+            credential.site_username = form.site_username.data
+            credential.encrypted_password = encrypt_password(form.site_password.data)
+            db.session.commit()
+            flash("Credential updated.", "success")
+            return redirect(url_for("dashboard"))
+
+        # Lists the credentials saved, instead of a blank form. Runs only when the user is just
+        # visiting the page. 
+        if request.method == "GET":
+            form.site_name.data = credential.site_name
+            form.site_username.data = credential.site_username
+            form.site_password.data = decrypt_password(credential.encrypted_password)
+
+        return render_template("edit_credential.html", form=form, credential=credential)
