@@ -29,6 +29,14 @@ def register_routes(app):
     def register():
         form = RegistrationForm()
         if form.validate_on_submit():
+
+            # Check whether someone has already registered with this
+            # username before creating the new account. Prevents crashes.
+            existing_user = User.query.filter_by(username=form.username.data).first()
+            if existing_user:
+                flash("Username is already in use. Kindly pick another one...", "error")
+                return render_template("register.html", form=form)
+
             new_user = User(username=form.username.data)
             new_user.set_password(form.password.data)
             db.session.add(new_user)
