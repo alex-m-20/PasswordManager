@@ -3,6 +3,7 @@ Two tables; users and credentials.
 """
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
 
 # Database from SQLA that will be used by the whole app.
@@ -27,6 +28,14 @@ class User(db.Model, UserMixin):
         cascade="all, delete-orphan",
     )
 
+    # Password is hashed and salted but only the hash is stored.
+    def set_password(self, plaintext):
+        self.password_hash = generate_password_hash(plaintext)
+
+    # Compares the password from the login attempt against the stored hash.
+    def check_password(self, plaintext):
+        return check_password_hash(self.password_hash, plaintext)
+
     def __repr__(self):
         return f"<User id={self.id} username={self.username!r}>"
 
@@ -50,7 +59,7 @@ class Credential(db.Model):
         default=lambda: datetime.now(timezone.utc), 
         onupdate=lambda: datetime.now(timezone.utc), 
         nullable=False
-)
+    )
 
     def __repr__(self):
         return f"<Credential id={self.id} site={self.site_name!r} user_id={self.user_id}>"
