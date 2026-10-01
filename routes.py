@@ -6,10 +6,11 @@ in and out and seeing the dashboard.
 
 
 from flask import render_template, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
-from models import db, User
-from forms import RegistrationForm, LoginForm
+from models import db, User, Credential
+from forms import RegistrationForm, LoginForm, CredentialForm
+from encryption import encrypt_password
 
 
 def register_routes(app):
@@ -77,3 +78,26 @@ def register_routes(app):
     @login_required
     def dashboard():
         return render_template("dashboard.html")
+
+
+    # Shows the "add a new credential" form when someone visits this
+    # page normally. If they fill it in and submit, this takes the
+    # password they typed, encrypts it and saves the new entry to the
+    # database as belonging to whichever user is currently logged in.
+    @app.route("/add_credential", methods=["GET", "POST"])
+    @login_required
+    def add_credential():
+        form = CredentialForm()
+        if form.validate_on_submit():
+            encrypted = encrypt_password(form.site_password.data)
+            new_credential = Credential(
+                user_id=current_user.id,
+                site_name=form.site_name.data,
+                site_username=form.site_username.data,
+                encrypted_password=encrypted,
+            )
+            db.session.add(new_credential)
+            db.session.commit()
+            flash("Credential saved.", "success")
+            return redirect(url_for("dashboard"))
+        return render_template("add_credential.html", form=form)
