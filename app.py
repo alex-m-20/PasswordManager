@@ -1,11 +1,30 @@
 import os
 
 from flask import Flask
+from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 
-from models import db
+from models import db, User
 
 load_dotenv()  # reads .env into the environment (SECRET_KEY, ENCRYPTION_KEY)
+
+login_manager = LoginManager()
+login_manager.login_view = "login"  # sends anyone not logged in to the login page
+
+csrf = CSRFProtect()   # checks every form submission for a valid CSRF token
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    """
+    Since user_id arrives as text, the int() converts it to a number
+    then returns the matching row from the users table.
+    """
+    return User.query.get(int(user_id))
+
+
+
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -20,9 +39,14 @@ def create_app() -> Flask:
     )
 
     db.init_app(app)
+    login_manager.init_app(app)
+    csrf.init_app(app)
 
     return app
 
+
+
+# Builds the app then starts a local server when file is started directly.
 if __name__ == "__main__":
     flask_app = create_app()
     flask_app.run(debug=True)
