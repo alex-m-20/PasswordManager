@@ -1,0 +1,97 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #222;
+}
+
+
+
+.site-header {
+    background-color: #557799;
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.site-header nav a {
+    color: white;
+    margin-left: 1rem;
+    text-decoration: none;
+}
+
+.site-header nav a:hover {
+    text-decoration: underline;
+}
+
+
+
+main {
+    padding: 1.5rem;
+    max-width: 40rem;
+}
+
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.flashes li {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.flash-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.flash-error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+main ul li {
+    margin-bottom: 0.5rem;
+}
+
+main ul li a {
+    margin-left: 0.5rem;
+}
+
+input[type="text"],
+input[type="password"] {
+    max-width: 20rem;
+    padding: 0.4rem;
+}
+
+button,
+input[type="submit"] {
+    padding: 0.5rem 1rem;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #1a252f;
+}
+
+.error {
+    display: block;
+    color: #c0392b;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
